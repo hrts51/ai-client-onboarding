@@ -28,11 +28,14 @@ from transformers import (
 from peft import LoraConfig, get_peft_model, TaskType, prepare_model_for_kbit_training
 from tqdm import tqdm
 
+# ─── Paths (always relative to this script file) ─────────────────────────────
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH  = os.path.join(SCRIPT_DIR, "training_data.jsonl")
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output", "mistral-onboarding-lora")
+
 # ─── Configuration ───────────────────────────────────────────────────────────
 
 MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.2"
-DATA_PATH  = "training_data.jsonl"
-OUTPUT_DIR = "output/mistral-onboarding-lora"
 
 LORA_CONFIG = {
     "r": 16,                    # LoRA rank
