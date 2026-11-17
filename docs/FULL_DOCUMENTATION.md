@@ -400,17 +400,18 @@ Fine-tuned LoRA weights saved to: `fine-tuning/output/mistral-onboarding-lora/`
 
 ## 9. Deployment
 
-### Local Deployment (Current)
+### Local Deployment
 - n8n: Docker on localhost:5678
 - Ollama: Windows host on localhost:11434
-- Access: Local network only
+- Access: Local network
 
-### Cloud Deployment (Railway + ngrok)
-- n8n deployed to Railway.app (free $5 credit)
-- Ollama exposed via ngrok tunnel
-- Access: Public URL
-
-See deployment guide in `docs/DEPLOYMENT.md`
+### Demo Access via ngrok
+To share a public URL for demos:
+```powershell
+# Expose n8n publicly
+ngrok http 5678
+# Share the generated URL e.g. https://xxxx.ngrok-free.app
+```
 
 ---
 
