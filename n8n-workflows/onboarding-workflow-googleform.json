@@ -1,0 +1,197 @@
+{
+  "name": "AI Client Onboarding Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "mode": "id",
+          "value": "1IlVldqikvQ-WJuBht-jCoe2B10W6JZXhcGtY-u1c6RM"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Form Responses 1"
+        },
+        "options": {}
+      },
+      "id": "google-form-trigger",
+      "name": "Google Form Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract and validate form data from Google Form response\nconst body = $input.first().json;\n\n// Map Google Form column names to our standard fields\nconst clientData = {\n  name: body['Full Name'] || body.name || '',\n  email: body['Email Address'] || body.email || '',\n  company: body['Company Name'] || body.company || '',\n  phone: body['Phone Number'] || body.phone || '',\n  projectType: body['Project Type'] || body.projectType || '',\n  budget: body['Budget Range'] || body.budget || '',\n  timeline: body['Expected Timeline'] || body.timeline || '',\n  description: body['Project Description'] || body.description || '',\n  submittedAt: body['Timestamp'] || new Date().toISOString()\n};\n\n// Validate required fields\nif (!clientData.email) {\n  throw new Error('Client email is required');\n}\n\nif (!clientData.name) {\n  throw new Error('Client name is required');\n}\n\nreturn { json: clientData };"
+      },
+      "id": "extract-data",
+      "name": "Extract & Validate Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "mistral"
+            },
+            {
+              "name": "prompt",
+              "value": "=You are an AI assistant for a professional services company. A new client has submitted an onboarding form. Analyze their information and provide:\n1. A brief client profile summary (2-3 sentences)\n2. Key project requirements extracted from their description\n3. Suggested priority level (High/Medium/Low) based on budget and timeline\n4. Any important notes or concerns\n\nClient Information:\n- Name: {{ $json.name }}\n- Company: {{ $json.company }}\n- Email: {{ $json.email }}\n- Project Type: {{ $json.projectType }}\n- Budget: {{ $json.budget }}\n- Timeline: {{ $json.timeline }}\n- Description: {{ $json.description }}\n\nRespond in a structured format."
+            },
+            {
+              "name": "stream",
+              "value": false
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "mistral-ai",
+      "name": "Mistral AI Processing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Mistral response and combine with client data\nconst clientData = $('Extract & Validate Data').first().json;\nconst mistralResponse = $input.first().json.response || '';\n\n// Generate a unique client ID\nconst clientId = 'CLT-' + Date.now().toString(36).toUpperCase();\n\nreturn {\n  json: {\n    ...clientData,\n    clientId,\n    aiAnalysis: mistralResponse,\n    processedAt: new Date().toISOString(),\n    status: 'New'\n  }\n};"
+      },
+      "id": "merge-data",
+      "name": "Merge AI Analysis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "mode": "id",
+          "value": "18OxSdPrR671wNfBnRBv2uV3k3QdThpJfEfEgkxiF-tY"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Client ID": "={{ $json.clientId }}",
+            "Name": "={{ $json.name }}",
+            "Email": "={{ $json.email }}",
+            "Company": "={{ $json.company }}",
+            "Phone": "={{ $json.phone }}",
+            "Project Type": "={{ $json.projectType }}",
+            "Budget": "={{ $json.budget }}",
+            "Timeline": "={{ $json.timeline }}",
+            "Description": "={{ $json.description }}",
+            "AI Analysis": "={{ $json.aiAnalysis }}",
+            "Status": "={{ $json.status }}",
+            "Submitted At": "={{ $json.submittedAt }}",
+            "Processed At": "={{ $json.processedAt }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            { "id": "Client ID", "displayName": "Client ID", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false },
+            { "id": "Name", "displayName": "Name", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false },
+            { "id": "Email", "displayName": "Email", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false },
+            { "id": "Company", "displayName": "Company", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false },
+            { "id": "Phone", "displayName": "Phone", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false },
+            { "id": "Project Type", "displayName": "Project Type", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false },
+            { "id": "Budget", "displayName": "Budget", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false },
+            { "id": "Timeline", "displayName": "Timeline", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false },
+            { "id": "Description", "displayName": "Description", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false },
+            { "id": "AI Analysis", "displayName": "AI Analysis", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false },
+            { "id": "Status", "displayName": "Status", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false },
+            { "id": "Submitted At", "displayName": "Submitted At", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false },
+            { "id": "Processed At", "displayName": "Processed At", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "readOnly": false, "removed": false }
+          ]
+        },
+        "options": {}
+      },
+      "id": "google-sheets",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1120, 180]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Merge AI Analysis').first().json.email }}",
+        "subject": "=Welcome to Our Services - Onboarding Confirmation #{{ $('Merge AI Analysis').first().json.clientId }}",
+        "emailType": "html",
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; color: #333; }\n    .header { background-color: #2563eb; color: white; padding: 20px; border-radius: 8px 8px 0 0; }\n    .body { padding: 20px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }\n    .highlight { background-color: #f3f4f6; padding: 15px; border-radius: 6px; margin: 15px 0; }\n    .footer { color: #6b7280; font-size: 12px; margin-top: 20px; }\n  </style>\n</head>\n<body>\n  <div class='header'>\n    <h2>Welcome, {{ $('Merge AI Analysis').first().json.name }}!</h2>\n    <p>Your onboarding has been received.</p>\n  </div>\n  <div class='body'>\n    <p>Thank you for submitting your information. Here is a summary of what we received:</p>\n    <div class='highlight'>\n      <strong>Reference ID:</strong> {{ $('Merge AI Analysis').first().json.clientId }}<br>\n      <strong>Company:</strong> {{ $('Merge AI Analysis').first().json.company }}<br>\n      <strong>Project Type:</strong> {{ $('Merge AI Analysis').first().json.projectType }}<br>\n      <strong>Submitted:</strong> {{ $('Merge AI Analysis').first().json.submittedAt }}\n    </div>\n    <p>Our team will review your information and get back to you within <strong>1 business day</strong>.</p>\n    <p>If you have any questions, reply to this email.</p>\n    <div class='footer'>\n      <p>This is an automated message. Reference: {{ $('Merge AI Analysis').first().json.clientId }}</p>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "gmail-client",
+      "name": "Email Client (Welcome)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "value": "C0CJC2CQS66"
+        },
+        "text": "=🆕 *New Client Onboarding* — {{ $('Merge AI Analysis').first().json.clientId }}\n\n*Client:* {{ $('Merge AI Analysis').first().json.name }} ({{ $('Merge AI Analysis').first().json.company }})\n*Email:* {{ $('Merge AI Analysis').first().json.email }}\n*Project:* {{ $('Merge AI Analysis').first().json.projectType }}\n*Budget:* {{ $('Merge AI Analysis').first().json.budget }}\n*Timeline:* {{ $('Merge AI Analysis').first().json.timeline }}\n\n*AI Analysis:*\n{{ $('Merge AI Analysis').first().json.aiAnalysis }}\n\n_Submitted at {{ $('Merge AI Analysis').first().json.submittedAt }}_",
+        "otherOptions": {}
+      },
+      "id": "slack-notify",
+      "name": "Slack Team Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1120, 420]
+    }
+  ],
+  "connections": {
+    "Google Form Trigger": {
+      "main": [
+        [{ "node": "Extract & Validate Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extract & Validate Data": {
+      "main": [
+        [{ "node": "Mistral AI Processing", "type": "main", "index": 0 }]
+      ]
+    },
+    "Mistral AI Processing": {
+      "main": [
+        [{ "node": "Merge AI Analysis", "type": "main", "index": 0 }]
+      ]
+    },
+    "Merge AI Analysis": {
+      "main": [
+        [
+          { "node": "Save to Google Sheets", "type": "main", "index": 0 },
+          { "node": "Email Client (Welcome)", "type": "main", "index": 0 },
+          { "node": "Slack Team Notification", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["onboarding", "ai", "automation"],
+  "meta": {
+    "instanceId": "local"
+  }
+}

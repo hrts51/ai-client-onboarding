@@ -1,0 +1,40 @@
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      # Basic config
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+
+      # Security — change this to a random string before first run
+      - N8N_ENCRYPTION_KEY=my-super-secret-key-change-this-123
+
+      # Disable telemetry
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_VERSION_NOTIFICATIONS_ENABLED=false
+
+      # Allow Ollama API calls to host machine from inside container
+      # On Windows/Mac, host.docker.internal resolves to the host machine
+      - NODE_FUNCTION_ALLOW_EXTERNAL=*
+
+      # Timezone
+      - GENERIC_TIMEZONE=Asia/Kolkata
+      - TZ=Asia/Kolkata
+
+    volumes:
+      # Persist all n8n data (workflows, credentials, executions)
+      - ./n8n-data:/home/node/.n8n
+
+    extra_hosts:
+      # Allows n8n container to reach Ollama running on your Windows host
+      - "host.docker.internal:host-gateway"
+
+networks:
+  default:
+    name: n8n-network

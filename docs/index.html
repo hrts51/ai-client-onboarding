@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Client Onboarding Automation</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      line-height: 1.7;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 60%, #1a1a2e 100%);
+      padding: 80px 40px;
+      text-align: center;
+      border-bottom: 1px solid #1e40af;
+    }
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #60a5fa;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: #94a3b8;
+      max-width: 700px;
+      margin: 0 auto 32px;
+    }
+    .badges { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .badge {
+      background: #1e3a5f;
+      border: 1px solid #3b82f6;
+      color: #93c5fd;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    /* ── Nav ── */
+    nav {
+      background: #0f172a;
+      border-bottom: 1px solid #1e293b;
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+    nav a {
+      color: #94a3b8;
+      text-decoration: none;
+      padding: 16px 12px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    nav a:hover { color: #60a5fa; border-bottom-color: #60a5fa; }
+
+    /* ── Sections ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 60px 40px; }
+    section { margin-bottom: 80px; }
+    h2 {
+      font-size: 1.8rem;
+      color: #60a5fa;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1e293b;
+    }
+    h3 { font-size: 1.2rem; color: #93c5fd; margin: 24px 0 12px; }
+    p { color: #94a3b8; margin-bottom: 16px; }
+
+    /* ── Cards ── */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: #3b82f6; }
+    .card-icon { font-size: 2rem; margin-bottom: 12px; }
+    .card h3 { margin-top: 0; }
+    .card p { margin-bottom: 0; font-size: 0.9rem; }
+
+    /* ── Pipeline ── */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 32px 0;
+    }
+    .step {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 20px 24px;
+      text-align: center;
+      min-width: 140px;
+    }
+    .step .icon { font-size: 2rem; margin-bottom: 8px; }
+    .step .label { font-size: 0.85rem; color: #93c5fd; font-weight: 600; }
+    .step .sublabel { font-size: 0.75rem; color: #64748b; margin-top: 4px; }
+    .arrow {
+      font-size: 1.5rem;
+      color: #3b82f6;
+      padding: 0 8px;
+    }
+
+    /* ── Tech Table ── */
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      background: #1e3a5f;
+      color: #93c5fd;
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1e293b;
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+    tr:hover td { background: #1e293b; }
+
+    /* ── Code blocks ── */
+    pre {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    code { font-family: 'Consolas', monospace; font-size: 0.88rem; color: #e6edf3; }
+    .comment { color: #8b949e; }
+    .keyword { color: #ff7b72; }
+    .string { color: #a5d6ff; }
+
+    /* ── Status badges ── */
+    .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .status-item {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .status-ok { border-left: 4px solid #22c55e; }
+    .status-icon { font-size: 1.5rem; }
+    .status-label { font-size: 0.9rem; color: #94a3b8; }
+    .status-value { font-size: 0.85rem; color: #64748b; }
+
+    /* ── Footer ── */
+    footer {
+      background: #0d1117;
+      border-top: 1px solid #1e293b;
+      padding: 40px;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+    footer a { color: #60a5fa; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <h1>🤖 AI Client Onboarding Automation</h1>
+  <p>An end-to-end AI-powered onboarding system built with n8n, Mistral 7B, and Google Workspace. Zero recurring AI costs — Mistral runs locally on your GPU.</p>
+  <div class="badges">
+    <span class="badge">n8n Workflow Automation</span>
+    <span class="badge">Mistral 7B (Local)</span>
+    <span class="badge">Ollama</span>
+    <span class="badge">Docker</span>
+    <span class="badge">LoRA Fine-tuning</span>
+    <span class="badge">Google Workspace</span>
+    <span class="badge">Slack</span>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav>
+  <a href="#overview">Overview</a>
+  <a href="#pipeline">Pipeline</a>
+  <a href="#tech">Tech Stack</a>
+  <a href="#setup">Setup</a>
+  <a href="#workflow">Workflow</a>
+  <a href="#ai">AI Model</a>
+  <a href="#finetuning">Fine-tuning</a>
+  <a href="#status">Status</a>
+</nav>
+
+<div class="container">
+
+  <!-- Overview -->
+  <section id="overview">
+    <h2>Project Overview</h2>
+    <p>This project automates the complete client onboarding process using AI-powered workflow automation. When a client submits an onboarding form, the system processes their information using a locally hosted Mistral 7B language model, stores the data in Google Sheets, sends a personalized welcome email, and notifies the internal team on Slack — all automatically, in under 30 seconds.</p>
+    <p>The key innovation is replacing expensive cloud AI APIs (like OpenAI) with a locally hosted, fine-tuned Mistral model running on consumer hardware, reducing recurring AI processing costs to zero.</p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Fully Automated</h3>
+        <p>From form submission to team notification in under 30 seconds. Zero manual intervention required.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💰</div>
+        <h3>Zero AI Costs</h3>
+        <p>Mistral 7B runs locally via Ollama. No OpenAI API fees, no per-request charges, no data leaving your machine.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔧</div>
+        <h3>Fully Customizable</h3>
+        <p>Open-source stack. Modify workflows, retrain the model, add integrations — complete control.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧠</div>
+        <h3>AI-Powered Analysis</h3>
+        <p>Mistral analyzes each client, extracts requirements, suggests priority levels, and flags concerns.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pipeline -->
+  <section id="pipeline">
+    <h2>Automation Pipeline</h2>
+    <p>The complete onboarding flow from client submission to team notification:</p>
+
+    <div class="pipeline">
+      <div class="step">
+        <div class="icon">📋</div>
+        <div class="label">Google Form</div>
+        <div class="sublabel">Client submits info</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step">
+        <div class="icon">⚙️</div>
+        <div class="label">n8n Trigger</div>
+        <div class="sublabel">Detects new response</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step">
+        <div class="icon">🤖</div>
+        <div class="label">Mistral AI</div>
+        <div class="sublabel">Analyzes client data</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step">
+        <div class="icon">📊</div>
+        <div class="label">Google Sheets</div>
+        <div class="sublabel">Saves record + AI analysis</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step">
+        <div class="icon">📧</div>
+        <div class="label">Gmail</div>
+        <div class="sublabel">Welcome email to client</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step">
+        <div class="icon">💬</div>
+        <div class="label">Slack</div>
+        <div class="sublabel">Team notification</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section id="tech">
+    <h2>Technology Stack</h2>
+    <table>
+      <thead>
+        <tr><th>Technology</th><th>Version</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>n8n</td><td>2.47.7</td><td>Workflow automation engine</td></tr>
+        <tr><td>Mistral 7B Instruct v0.2</td><td>Q4_K_M (4-bit)</td><td>Local AI language model</td></tr>
+        <tr><td>Ollama</td><td>v0.40.16</td><td>Local LLM deployment and serving</td></tr>
+        <tr><td>Docker Desktop</td><td>v29.9.3</td><td>Container for n8n</td></tr>
+        <tr><td>Python</td><td>3.11.9</td><td>Fine-tuning scripts</td></tr>
+        <tr><td>PyTorch</td><td>2.3 (CUDA 12.1)</td><td>Deep learning framework</td></tr>
+        <tr><td>Hugging Face Transformers</td><td>4.40.0</td><td>Model loading and training</td></tr>
+        <tr><td>PEFT</td><td>0.10.0</td><td>LoRA fine-tuning framework</td></tr>
+        <tr><td>BitsAndBytes</td><td>0.43.1</td><td>4-bit quantization</td></tr>
+        <tr><td>Google Forms</td><td>—</td><td>Client data collection</td></tr>
+        <tr><td>Google Sheets</td><td>—</td><td>Client data storage</td></tr>
+        <tr><td>Gmail API</td><td>—</td><td>Automated email sending</td></tr>
+        <tr><td>Slack API</td><td>—</td><td>Team notifications</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Setup -->
+  <section id="setup">
+    <h2>Setup Guide</h2>
+
+    <h3>Prerequisites</h3>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🐳</div>
+        <h3>Docker Desktop</h3>
+        <p>Download from docker.com/products/docker-desktop — runs n8n in a container.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🦙</div>
+        <h3>Ollama</h3>
+        <p>Download from ollama.com — runs Mistral locally on your GPU.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🐍</div>
+        <h3>Python 3.11</h3>
+        <p>Required for LoRA fine-tuning. Download from python.org/downloads/release/python-3119</p>
+      </div>
+    </div>
+
+    <h3>Installation</h3>
+    <pre><code><span class="comment"># 1. Clone the repository</span>
+git clone https://github.com/YOUR_USERNAME/ai-client-onboarding.git
+cd ai-client-onboarding
+
+<span class="comment"># 2. Pull Mistral 7B (4.4GB download)</span>
+ollama pull mistral
+
+<span class="comment"># 3. Start n8n via Docker</span>
+cd docker
+docker compose up -d
+
+<span class="comment"># 4. Open n8n in browser</span>
+<span class="comment"># http://localhost:5678</span>
+
+<span class="comment"># 5. Import the workflow</span>
+<span class="comment"># n8n → Add workflow → Import from file</span>
+<span class="comment"># Select: n8n-workflows/onboarding-workflow-googleform.json</span></code></pre>
+
+    <h3>Test the System</h3>
+    <pre><code><span class="comment"># Send a test submission via PowerShell</span>
+$body = @{
+  name        = <span class="string">"Test Client"</span>
+  email       = <span class="string">"your@email.com"</span>
+  company     = <span class="string">"Test Company"</span>
+  projectType = <span class="string">"Web Application"</span>
+  budget      = <span class="string">"$10,000 - $25,000"</span>
+  timeline    = <span class="string">"3 months"</span>
+  description = <span class="string">"We need a customer portal."</span>
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri <span class="string">"http://localhost:5678/webhook/client-onboarding"</span> `
+  -Method POST -Body $body -ContentType <span class="string">"application/json"</span></code></pre>
+  </section>
+
+  <!-- Workflow -->
+  <section id="workflow">
+    <h2>n8n Workflow</h2>
+    <p>The workflow consists of 7 nodes connected in sequence:</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">1️⃣</div>
+        <h3>Google Form Trigger</h3>
+        <p>Polls the Google Sheet linked to the form every minute. Fires when a new response is detected.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">2️⃣</div>
+        <h3>Extract & Validate Data</h3>
+        <p>JavaScript node that maps form fields to standard data structure and validates required fields.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">3️⃣</div>
+        <h3>Mistral AI Processing</h3>
+        <p>HTTP request to Ollama API at host.docker.internal:11434. Sends client data, receives structured AI analysis.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">4️⃣</div>
+        <h3>Merge AI Analysis</h3>
+        <p>Combines client data with Mistral's response. Generates unique client ID (CLT-XXXXXXXX).</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">5️⃣</div>
+        <h3>Save to Google Sheets</h3>
+        <p>Appends a new row with all 13 fields including AI analysis to the client onboarding spreadsheet.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">6️⃣</div>
+        <h3>Email Client</h3>
+        <p>Sends a branded HTML welcome email to the client with their reference ID and submission summary.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">7️⃣</div>
+        <h3>Slack Notification</h3>
+        <p>Posts full client details and AI analysis to #onboarding-alerts channel for immediate team review.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Model -->
+  <section id="ai">
+    <h2>AI Model — Mistral 7B</h2>
+    <p>The system uses <strong>Mistral 7B Instruct v0.2</strong>, a 7-billion parameter open-source language model running locally via Ollama. It is loaded in 4-bit quantized format (Q4_K_M), which reduces memory usage to ~4.4GB — fitting comfortably in a 6GB VRAM GPU like the RTX 3060.</p>
+
+    <h3>What Mistral Does</h3>
+    <p>For each client submission, Mistral generates a structured analysis:</p>
+    <pre><code><span class="comment">// Sample Mistral output for a client submission</span>
+
+<span class="string">1. Client Profile Summary:</span>
+   John Smith from TechStartup Inc is seeking a customer portal
+   for their SaaS product. The project is well-scoped with a
+   clear budget and timeline.
+
+<span class="string">2. Key Requirements:</span>
+   - User authentication and account management
+   - Subscription management module
+   - Invoice viewing and download
+   - Support ticket submission
+
+<span class="string">3. Priority Level: High</span>
+   Clear budget ($10k-$25k), defined timeline, specific requirements.
+
+<span class="string">4. Important Notes:</span>
+   - Confirm payment gateway integration requirement
+   - Clarify if new API development is needed</code></pre>
+
+    <h3>Local Deployment Architecture</h3>
+    <pre><code>n8n (Docker Container)
+  └─ HTTP POST → host.docker.internal:11434
+                        │
+                   Ollama Server
+                        │
+              Mistral 7B (Q4_K_M)
+                        │
+                   RTX 3060 GPU
+                   (6GB VRAM)</code></pre>
+  </section>
+
+  <!-- Fine-tuning -->
+  <section id="finetuning">
+    <h2>LoRA Fine-tuning</h2>
+    <p>The base Mistral model is fine-tuned using <strong>LoRA (Low-Rank Adaptation)</strong> — a parameter-efficient technique that trains only a small set of adapter weights rather than the entire model, making it feasible on consumer GPUs.</p>
+
+    <h3>Why Fine-tune?</h3>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🎯</div>
+        <h3>Domain Specific</h3>
+        <p>Teaches Mistral the specific format and style of onboarding analysis for professional services.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Faster Responses</h3>
+        <p>Fine-tuned model needs less prompting to produce correctly structured output.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💡</div>
+        <h3>Consistent Output</h3>
+        <p>Base model responses vary; fine-tuned model follows the exact analysis format every time.</p>
+      </div>
+    </div>
+
+    <h3>Training Configuration</h3>
+    <table>
+      <thead><tr><th>Parameter</th><th>Value</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td>Base Model</td><td>Mistral 7B Instruct v0.2</td><td>Best open-source instruct model at 7B scale</td></tr>
+        <tr><td>Quantization</td><td>4-bit (NF4)</td><td>Fits in 6GB VRAM</td></tr>
+        <tr><td>LoRA Rank (r)</td><td>16</td><td>Balance between capacity and memory</td></tr>
+        <tr><td>LoRA Alpha</td><td>32</td><td>Standard 2x rank scaling</td></tr>
+        <tr><td>Epochs</td><td>3</td><td>Sufficient for small dataset</td></tr>
+        <tr><td>Learning Rate</td><td>2e-4</td><td>Standard for LoRA fine-tuning</td></tr>
+        <tr><td>Batch Size</td><td>1 + grad accum 4</td><td>Effective batch of 4 within VRAM limit</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Run Fine-tuning</h3>
+    <pre><code><span class="comment"># Activate the Python 3.11 virtual environment</span>
+cd fine-tuning
+.\venv\Scripts\Activate.ps1
+
+<span class="comment"># Start training (uses RTX 3060 GPU automatically)</span>
+python train.py
+
+<span class="comment"># After training, serve in Ollama</span>
+ollama create onboarding-mistral -f output/mistral-onboarding-lora/Modelfile
+ollama run onboarding-mistral</code></pre>
+  </section>
+
+  <!-- Status -->
+  <section id="status">
+    <h2>System Status</h2>
+    <div class="status-grid">
+      <div class="status-item status-ok">
+        <div class="status-icon">✅</div>
+        <div>
+          <div class="status-label">n8n</div>
+          <div class="status-value">Running on port 5678</div>
+        </div>
+      </div>
+      <div class="status-item status-ok">
+        <div class="status-icon">✅</div>
+        <div>
+          <div class="status-label">Ollama + Mistral 7B</div>
+          <div class="status-value">Running on port 11434</div>
+        </div>
+      </div>
+      <div class="status-item status-ok">
+        <div class="status-icon">✅</div>
+        <div>
+          <div class="status-label">Google Form Trigger</div>
+          <div class="status-value">Polling every minute</div>
+        </div>
+      </div>
+      <div class="status-item status-ok">
+        <div class="status-icon">✅</div>
+        <div>
+          <div class="status-label">Google Sheets</div>
+          <div class="status-value">Auto-saving client records</div>
+        </div>
+      </div>
+      <div class="status-item status-ok">
+        <div class="status-icon">✅</div>
+        <div>
+          <div class="status-label">Gmail</div>
+          <div class="status-value">Sending welcome emails</div>
+        </div>
+      </div>
+      <div class="status-item status-ok">
+        <div class="status-icon">✅</div>
+        <div>
+          <div class="status-label">Slack</div>
+          <div class="status-value">#onboarding-alerts active</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Footer -->
+<footer>
+  <p>AI Client Onboarding Automation &nbsp;·&nbsp; Built with n8n + Mistral 7B + Ollama</p>
+  <p style="margin-top: 8px;">
+    <a href="https://github.com/YOUR_USERNAME/ai-client-onboarding">GitHub</a>
+    &nbsp;·&nbsp;
+    <a href="http://localhost:5678">n8n Dashboard</a>
+    &nbsp;·&nbsp;
+    <a href="http://localhost:11434">Ollama API</a>
+  </p>
+  <p style="margin-top: 16px; color: #374151;">Made by Ankit Kumar</p>
+</footer>
+
+</body>
+</html>

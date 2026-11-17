@@ -1,0 +1,25 @@
+# Python
+fine-tuning/venv/
+fine-tuning/output/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.env
+
+# Docker data
+docker/n8n-data/
+
+# Model files (too large for GitHub)
+*.bin
+*.safetensors
+*.gguf
+*.pt
+*.pth
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
